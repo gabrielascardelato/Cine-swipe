@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Cine Swipe</title>
+<style>
+:root{--bg:#f4f1ec;--fg:#1b1b1f;--mut:#6d6a66;--card:#fff;--line:#0000001a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e0e11;--fg:#f3f1ee;--mut:#9a979c;--card:#1a1a1f;--line:#ffffff1c}}
+:root[data-theme="dark"]{--bg:#0e0e11;--fg:#f3f1ee;--mut:#9a979c;--card:#1a1a1f;--line:#ffffff1c}
+html{height:100%}
+body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;overscroll-behavior:none}
+#app{height:100%;display:flex;flex-direction:column}
+#top{display:flex;align-items:center;gap:6px;padding:10px 12px 6px}
+#top button,.btn{font:inherit;cursor:pointer;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:99px;padding:7px 14px;font-size:14px}
+#top button.on{background:var(--fg);color:var(--bg)}
+#top .sp{flex:1}#top .ic{padding:7px 11px;font-size:16px}
+#deck{flex:1;position:relative;margin:0 8px 10px;min-height:0}
+.card{position:absolute;inset:0;border-radius:22px;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 10px 30px #0004;color:#fff;background:#16161a}
+.card.back{transform:scale(.95);filter:brightness(.7)}
+.card img.p{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.card .nt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:30px;text-align:center;font:700 30px Georgia,serif}
+.rt{position:absolute;top:14px;right:14px;display:flex;align-items:center;gap:6px;background:#0005;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid #ffffff2e;border-radius:99px;padding:5px 11px 5px 9px;font-size:13px;font-weight:600;letter-spacing:.02em}.rt i{width:8px;height:8px;border-radius:50%;background:#fa3d2f;box-shadow:0 0 0 2px #fa3d2f44}
+.bt{position:absolute;left:0;right:0;bottom:0;padding:60px 16px 18px;background:linear-gradient(transparent,#000d);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tg{display:flex;gap:6px;flex-wrap:wrap}.tg em{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:5px 10px;border-radius:99px;background:#ffffff1f;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid #ffffff33}
+.lg{width:26px;height:26px;border-radius:50%;object-fit:cover;background:#fff2;box-shadow:0 0 0 1.5px #ffffff55,0 2px 8px #0006}
+.bs{display:flex;gap:6px}
+.stamp{position:absolute;inset:0;background:var(--c);opacity:0;pointer-events:none}
+.empty{height:100%;display:flex;align-items:center;justify-content:center}.ep{width:100%;height:100%;box-sizing:border-box;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 28px;background:radial-gradient(circle at 70% 18%,#ffffff12,transparent 55%),linear-gradient(165deg,#24242b,#0f0f13);border:1px solid #ffffff14;box-shadow:0 10px 30px #0004;color:#f3f1ee}
+.ep h2{font:700 clamp(28px,8vw,38px)/1.1 Georgia,"Times New Roman",serif;letter-spacing:.03em;text-transform:uppercase;margin:0 0 56px}
+.big{font:inherit;font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;border:1px solid var(--line);border-radius:99px;padding:14px 28px;background:var(--fg);color:var(--bg);cursor:pointer}.ep .big{background:#f3f1ee;color:#16161a;border-color:#ffffff40}
+#lists{flex:1;overflow-y:auto;padding:0 12px 16px;display:none}
+.seg{display:flex;gap:6px;overflow-x:auto;padding:4px 0 10px}
+.seg button{font:inherit;font-size:13px;white-space:nowrap;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:99px;padding:7px 12px;cursor:pointer}
+.seg button.on{background:var(--fg);color:var(--bg)}
+.row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:8px}
+.row img.th{width:46px;height:68px;border-radius:8px;object-fit:cover;flex:none;background:#8884}
+.row .m{flex:1;min-width:0}.row .m b{display:block;font-size:15px}.row .m span{font-size:12px;color:var(--mut)}.row .bs{margin-top:6px}
+.row .lg{width:20px;height:20px}
+.x{border:0;background:none;color:var(--mut);font-size:20px;cursor:pointer;padding:6px}
+.none{color:var(--mut);text-align:center;padding:40px 0}.cl{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 3px;box-sizing:border-box;border-radius:5px;font-style:normal;font-size:11px;font-weight:800;vertical-align:middle;margin-right:7px}
+#set{position:fixed;inset:0;background:var(--bg);z-index:8;display:none;overflow-y:auto;padding:calc(20px + env(safe-area-inset-top,0px)) 20px 30px;box-sizing:border-box}
+#set h2{margin:0 0 6px}#set p{color:var(--mut);font-size:13px;line-height:1.5;margin:0 0 14px}
+#set label{display:block;font-size:13px;font-weight:600;margin:12px 0 4px}
+#set input[type=text]{width:100%;box-sizing:border-box;font:inherit;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg)}
+#set .r{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+#load,#toast{position:fixed;left:50%;transform:translateX(-50%);background:#000d;color:#fff;border-radius:99px;padding:10px 18px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9;max-width:88%;text-align:center}
+#load{top:50%;transform:translate(-50%,-50%)}#toast{bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+#load.on,#toast.on{opacity:1}
+</style></head>
+<body><div id="app">
+<div id="top"><button id="tD" class="on">Descobrir</button><button id="tL">Listas</button><span class="sp"></span><button class="ic" id="undo" title="Desfazer">↶</button><button class="ic" id="gen" title="Nova lista de 20">⟳</button><button class="ic" id="cfg" title="Configurações">⚙</button></div>
+<div id="deck"></div>
+<div id="lists"><div class="seg" id="seg"></div><div id="items"></div></div>
+</div>
+<div id="set">
+<h2>Configurações</h2>
+<p>O app usa o TMDB (pôsteres, gêneros e streamings no Brasil) e o OMDb (nota do Rotten Tomatoes). As duas chaves são gratuitas e ficam salvas só neste navegador.</p>
+<label>Chave TMDB (API Key v3) — themoviedb.org/settings/api</label><input type="text" id="kT" autocomplete="off" autocapitalize="off">
+<label>Chave OMDb — omdbapi.com/apikey.aspx</label><input type="text" id="kO" autocomplete="off" autocapitalize="off">
+<div class="r"><button class="big" id="ok">Salvar</button><button class="btn" id="cl">Fechar</button></div>
+<p style="margin-top:22px">Suas listas ficam neste aparelho. Use exportar e importar para fazer backup ou levar para outro aparelho.</p>
+<div class="r" style="margin-top:0"><button class="btn" id="exp">Exportar listas</button><label class="btn" style="margin:0;font-weight:400">Importar<input type="file" id="imp" accept="application/json" hidden></label></div>
+</div>
+<div id="load">Buscando filmes…</div><div id="toast"></div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const T='https://api.themoviedb.org/3',IMG='https://image.tmdb.org/t/p/';
+const FROM='2016-01-01',RECENT=2016;
+const CATG={want:{l:'Quero assistir',c:'#0d4a2b',s:'Quero'},no:{l:'Não quero',c:'#2b2e34',s:'Não quero'},liked:{l:'Gostei',c:'#6b4a06',s:'Gostei'},disliked:{l:'Não gostei',c:'#6e1218',s:'Não gostei'}};
+const W={liked:2,want:1,no:-1,disliked:-2};
+const CLS={L:['#1aa34a','#fff'],'10':['#0a7fd1','#fff'],'12':['#f2c200','#222'],'14':['#f07d00','#fff'],'16':['#d62f2f','#fff'],'18':['#111','#fff']};
+let S=(()=>{try{const j=JSON.parse(localStorage.getItem('cs2'));if(j&&j.L)return j}catch(e){}return{k:{tmdb:'',omdb:''},q:[],L:{want:[],no:[],liked:[],disliked:[]},H:[],X:[]}})();
+let RC={};try{RC=JSON.parse(localStorage.getItem('cs2rt'))||{}}catch(e){}
+const save=()=>{try{localStorage.setItem('cs2',JSON.stringify(S))}catch(e){}};
+const saveRC=()=>{try{localStorage.setItem('cs2rt',JSON.stringify(RC))}catch(e){}};
+const fatal=m=>{const e=new Error(m);e.fatal=true;return e};
+async function tm(path,q={}){const r=await fetch(T+path+'?'+new URLSearchParams({api_key:S.k.tmdb,language:'pt-BR',...q}));
+if(r.status==401)throw fatal('chave do TMDB inválida');if(!r.ok)throw new Error('TMDB '+r.status);return r.json()}
+async function rt(imdb){if(!imdb)return null;if(imdb in RC)return RC[imdb];
+const r=await fetch('https://www.omdbapi.com/?apikey='+encodeURIComponent(S.k.omdb)+'&i='+imdb);const j=await r.json();
+if(j.Response==='False'){if(/limit/i.test(j.Error||''))throw fatal('limite diário do OMDb atingido');if(/key/i.test(j.Error||''))throw fatal('chave do OMDb inválida');RC[imdb]=null;return null}
+const v=(j.Ratings||[]).find(x=>x.Source==='Rotten Tomatoes');const n=v?parseInt(v.Value):null;RC[imdb]=n;saveRC();return n}
+const seen=()=>{const s=new Set();for(const k in S.L)S.L[k].forEach(f=>s.add(f.id));return s};
+function weights(){const g={};for(const k in W)S.L[k].forEach(f=>(f.gi||[]).forEach(i=>g[i]=(g[i]||0)+W[k]));return g}
+async function build(id){try{
+const d=await tm('/movie/'+id,{append_to_response:'watch/providers,release_dates'});
+const br=(d['watch/providers']||{}).results;const fl=((br&&br.BR&&br.BR.flatrate)||[]).sort((a,b)=>a.display_priority-b.display_priority);
+if(!d.poster_path||!fl.length){S.X.push(id);return null}
+const r=await rt(d.imdb_id);if(r==null||r<80){S.X.push(id);return null}
+const seenL=new Set();const s=fl.filter(p=>{const k=p.provider_name.replace(/ (with Ads|Standard with Ads)$/i,'');if(seenL.has(k))return false;seenL.add(k);return true}).slice(0,5).map(p=>({n:p.provider_name,l:p.logo_path}));
+const b2=((d.release_dates||{}).results||[]).find(x=>x.iso_3166_1==='BR');const c=((b2&&b2.release_dates||[]).find(x=>x.certification)||{}).certification||'';
+return{id:d.id,c,t:d.title,y:(d.release_date||'').slice(0,4),g:(d.genres||[]).map(x=>x.name),gi:(d.genres||[]).map(x=>x.id),r,p:d.poster_path,s}
+}catch(e){if(e.fatal)throw e;return null}}
+async function gather(){
+const sn=seen(),gw=weights(),pool=new Map();
+const add=(m,b)=>{if(!m||sn.has(m.id)||S.X.includes(m.id))return;const e=pool.get(m.id)||{m,s:0};e.s+=b;pool.set(m.id,e)};
+const top=Object.entries(gw).filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,2).map(e=>e[0]);
+const pg=[1,2,3,4,5,6,7,8].sort(()=>Math.random()-.5);
+const dq=x=>tm('/discover/movie',{sort_by:'popularity.desc','vote_average.gte':7.3,'vote_count.gte':800,watch_region:'BR',with_watch_monetization_types:'flatrate',include_adult:'false',...x}).then(j=>j.results.forEach(m=>add(m,0))).catch(e=>{if(e.fatal)throw e});
+const jobs=[dq({'primary_release_date.gte':FROM,page:pg[0]}),dq({'primary_release_date.gte':FROM,page:pg[1]}),dq({'primary_release_date.gte':FROM,page:pg[2]}),dq({page:pg[3]})];
+if(top.length)jobs.push(dq({'primary_release_date.gte':FROM,with_genres:top.join('|'),page:pg[4]}),dq({'primary_release_date.gte':FROM,with_genres:top.join('|'),page:pg[5]}));
+S.L.liked.slice(0,6).forEach(f=>jobs.push(tm('/movie/'+f.id+'/recommendations').then(j=>j.results.slice(0,15).forEach(m=>add(m,2.5))).catch(e=>{if(e.fatal)throw e})));
+await Promise.all(jobs);
+const yr=m=>+(m.release_date||'0').slice(0,4);
+const cand=[...pool.values()].map(e=>({id:e.m.id,s:e.s+(e.m.genre_ids||[]).reduce((a,g)=>a+(gw[g]||0),0)*.4+e.m.vote_average/2+(yr(e.m)>=RECENT?3:-1)+Math.random()*1.5})).sort((a,b)=>b.s-a.s).slice(0,90);
+const out=[];let err=null;
+for(let i=0;i<cand.length&&out.length<20;i+=6){
+try{(await Promise.all(cand.slice(i,i+6).map(c=>build(c.id)))).forEach(f=>f&&out.length<20&&out.push(f))}catch(e){err=e;break}
+$('load').textContent='Buscando filmes… '+out.length+'/20'}
+save();if(err&&!out.length)throw err;return out}
+let busy=false;
+async function newList(){if(busy)return;if(!S.k.tmdb||!S.k.omdb){$('set').style.display='block';return}
+busy=true;$('load').textContent='Buscando filmes…';$('load').classList.add('on');
+try{const l=await gather();if(!l.length)throw new Error('nenhum filme novo encontrado');S.q=l;save();tab('deck');toast(l.length<20?('Só '+l.length+' filmes atenderam aos critérios agora'):'Nova lista pronta')}
+catch(e){toast('Erro: '+e.message)}finally{busy=false;$('load').classList.remove('on')}}
+const badges=f=>'<span class="bs">'+(f.s||[]).map(p=>`<img class="lg" src="${IMG}w92${p.l}" title="${esc(p.n)}" alt="${esc(p.n)}">`).join('')+'</span>';
+function card(f,back){const d=document.createElement('div');d.className='card'+(back?' back':'');
+d.innerHTML=`<div class="nt">${esc(f.t)}</div><img class="p" src="${IMG}w780${f.p}" alt="${esc(f.t)}" draggable="false"><div class="rt"><i></i>${f.r}%</div><div class="bt"><span class="tg">${f.g.slice(0,2).map(x=>`<em>${esc(x)}</em>`).join('')}</span>${badges(f)}</div><div class="stamp"></div>`;return d}
+let sx=0,sy=0,dx=0,dy=0,drag=false;
+function dirOf(min){const ax=Math.abs(dx),ay=Math.abs(dy);if(Math.max(ax,ay)<min)return null;return ax>ay?(dx>0?'want':'no'):(dy<0?'liked':'disliked')}
+function bind(el){const st=el.querySelector('.stamp');
+el.onpointerdown=e=>{drag=true;sx=e.clientX;sy=e.clientY;dx=dy=0;el.setPointerCapture(e.pointerId);el.style.transition='none'};
+el.onpointermove=e=>{if(!drag)return;dx=e.clientX-sx;dy=e.clientY-sy;el.style.transform=`translate(${dx}px,${dy}px) rotate(${dx/25}deg)`;const d=dirOf(16);
+if(d){st.style.setProperty('--c',CATG[d].c);st.style.opacity=Math.min(.65,Math.hypot(dx,dy)/200)}else st.style.opacity=0};
+el.onpointerup=el.onpointercancel=()=>{if(!drag)return;drag=false;const d=dirOf(90);if(d)fly(el,d);else{el.style.transition='transform .25s';el.style.transform='';st.style.opacity=0}}}
+function fly(el,d){const v={want:[1,0],no:[-1,0],liked:[0,-1],disliked:[0,1]}[d];el.style.transition='transform .22s ease-in,opacity .22s';
+el.style.transform=`translate(${v[0]*innerWidth*1.2}px,${v[1]*innerHeight*1.2}px) rotate(${v[0]*25}deg)`;el.style.opacity=0;setTimeout(()=>commit(d),200)}
+function commit(d){const f=S.q.shift();if(!f)return;S.L[d].unshift(f);S.H.push(d);save();render()}
+function undo(){const d=S.H.pop();if(!d)return toast('Nada para desfazer');const f=S.L[d].shift();S.q.unshift(f);save();tab('deck')}
+function render(){const dk=$('deck');dk.innerHTML='';
+if(!S.q.length){dk.innerHTML='<div class="empty"><div class="ep"><h2>'+(S.k.tmdb?'Lista concluída':'Bem-vinda')+'</h2><button class="big" id="g2">'+(S.k.tmdb?'Gerar nova lista':'Configurar')+'</button></div></div>';$('g2').onclick=newList;return}
+if(S.q[1])dk.appendChild(card(S.q[1],true));const c=card(S.q[0]);dk.appendChild(c);bind(c)}
+let cur='want';
+function renderLists(){$('seg').innerHTML=Object.keys(CATG).map(k=>`<button data-k="${k}" class="${k==cur?'on':''}">${CATG[k].l} · ${S.L[k].length}</button>`).join('');
+const l=S.L[cur];$('items').innerHTML=l.length?l.map((f,i)=>`<div class="row"><img class="th" src="${IMG}w185${f.p}" alt=""><div class="m"><b>${esc(f.t)}</b><span>${CLS[f.c]?`<em class="cl" style="background:${CLS[f.c][0]};color:${CLS[f.c][1]}">${f.c}</em>`:''}${esc(f.y)} · ${esc(f.g.slice(0,2).join(' · '))} · 🍅 ${f.r}%</span>${badges(f)}</div><button class="x" data-i="${i}" title="Remover">×</button></div>`).join(''):'<div class="none">Nada aqui ainda.</div>'}
+$('seg').onclick=e=>{const k=e.target.dataset.k;if(k){cur=k;renderLists()}};
+$('items').onclick=e=>{const i=e.target.dataset.i;if(i!=null){S.L[cur].splice(+i,1);save();renderLists()}};
+function tab(n){const d=n=='deck';$('deck').style.display=d?'block':'none';$('lists').style.display=d?'none':'block';$('tD').classList.toggle('on',d);$('tL').classList.toggle('on',!d);d?render():renderLists()}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),3000)}
+$('tD').onclick=()=>tab('deck');$('tL').onclick=()=>tab('lists');$('undo').onclick=undo;
+$('gen').onclick=()=>{if(S.q.length&&!confirm('Trocar os filmes restantes por uma nova lista?'))return;newList()};
+$('cfg').onclick=()=>{$('kT').value=S.k.tmdb;$('kO').value=S.k.omdb;$('set').style.display='block'};
+$('cl').onclick=()=>$('set').style.display='none';
+$('ok').onclick=()=>{S.k={tmdb:$('kT').value.trim(),omdb:$('kO').value.trim()};save();$('set').style.display='none';if(S.k.tmdb&&S.k.omdb&&!S.q.length)newList();else render()};
+$('exp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({L:S.L,X:S.X})],{type:'application/json'}));a.download='cine-swipe.json';a.click()};
+$('imp').onchange=async e=>{try{const j=JSON.parse(await e.target.files[0].text());if(!j.L)throw 0;S.L=j.L;S.X=j.X||[];save();toast('Listas importadas');$('set').style.display='none';tab('deck')}catch(x){toast('Arquivo inválido')}};
+document.onkeydown=e=>{const m={ArrowRight:'want',ArrowLeft:'no',ArrowUp:'liked',ArrowDown:'disliked'}[e.key];const c=document.querySelector('.card:not(.back)');if(m&&c&&$('deck').style.display!='none')fly(c,m)};
+tab('deck');
+if(S.k.tmdb&&S.k.omdb&&!S.q.length&&!Object.values(S.L).some(a=>a.length))newList();
+else if(!S.k.tmdb)$('set').style.display='block';
+</script></body></html>
